@@ -964,7 +964,8 @@ window.submitRecipe = async function() {
         </div>
         <h2>Recipe submitted! 🎉</h2>
         <p>Your combo "<strong>${name}</strong>" is live. Get people to vote for it!</p>
-        <button class="btn" onclick="showScreen('leaderboard')">See the leaderboard</button>
+        <button class="btn" onclick="showScreen('leaderboard')" style="margin-bottom:10px;">See the leaderboard</button>
+        <button class="btn btn-outline" onclick="location.reload()">Create another recipe</button>
       </div>`;
   } catch(err) {
     btn.disabled = false;
