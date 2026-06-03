@@ -247,11 +247,12 @@
   }
   .bean-chip.selected {
     border-color: var(--red);
-    background: var(--red-light);
+    background: #ffffff;
     color: var(--red-dark);
     font-weight: 700;
   }
   .bean-chip:hover:not(.selected) { background: var(--red-light); border-color: var(--red-mid); }
+  .bean-chip img { mix-blend-mode: multiply; background: transparent; display: block; margin: 0 auto 3px; width: 52px; height: 40px; object-fit: contain; }
   .bean-qty-row {
     display: flex;
     align-items: center;
@@ -865,6 +866,7 @@ function buildBeansGrid() {
     }
     chip.onclick = (e) => {
       if (e.target.classList.contains('bean-qty-btn')) return;
+      if (e.target.tagName === 'IMG') { if (!beanQtys[b]) addBean(b); return; }
       if (!beanQtys[b]) addBean(b);
     };
     chipEls[b] = chip;
@@ -897,7 +899,7 @@ function renderChip(b) {
   if (qty > 0) {
     chip.className = 'bean-chip selected';
     chip.innerHTML = '';
-    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; i.style.cssText='width:52px;height:40px;object-fit:contain;display:block;margin:0 auto 3px;'; chip.appendChild(i); }
+    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; chip.appendChild(i); }
     const d1=document.createElement('div'); d1.style.cssText='margin-bottom:4px;font-size:11px;'; d1.textContent=b; chip.appendChild(d1);
     const qrow=document.createElement('div'); qrow.className='bean-qty-row';
     qrow.innerHTML='<button class="bean-qty-btn" onclick="changeQty(\'' + safe + '\',-1,event)">−</button><span class="bean-qty-num">'+qty+'</span><button class="bean-qty-btn" onclick="changeQty(\'' + safe + '\',1,event)">+</button>';
@@ -905,7 +907,7 @@ function renderChip(b) {
   } else {
     chip.className = 'bean-chip';
     chip.innerHTML = '';
-    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; i.style.cssText='width:52px;height:40px;object-fit:contain;display:block;margin:0 auto 3px;'; chip.appendChild(i); }
+    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; chip.appendChild(i); }
     const d2=document.createElement('div'); d2.style.cssText='font-size:11px;'; d2.textContent=b; chip.appendChild(d2);
   }
 }
