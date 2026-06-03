@@ -197,20 +197,21 @@
   .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
   .field input::placeholder, .field textarea::placeholder { color: #cba0a5; }
 
-  /* EVENT CODE */
-  .code-banner {
-    background: var(--yellow);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    border: 1px solid var(--yellow-dark);
+  /* DELETE BTN */
+  .delete-btn {
+    padding: 4px 10px;
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-pill);
+    background: #fff5f5;
+    color: #b91c1c;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
   }
-  .code-banner svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--yellow-dark); }
-  .code-banner p { font-size: 13px; color: #5a3d00; font-weight: 600; line-height: 1.4; }
-  .code-banner strong { font-family: 'Nunito', sans-serif; font-weight: 800; }
+  .delete-btn:hover { background: #b91c1c; color: #fff; border-color: #b91c1c; }
 
   /* BEAN PICKER */
   .beans-label {
@@ -692,19 +693,10 @@
       <p>Pick up to 5 flavours, name your creation, and submit it to the crowd.</p>
     </div>
 
-    <div class="code-banner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <p>You'll need your <strong>event code</strong> from the Jelly Belly stand to submit a recipe.</p>
-    </div>
-
     <div class="card">
       <div class="field">
         <label>Recipe name</label>
         <input type="text" id="recipe-name" placeholder="e.g. Tropical Sunrise..." oninput="updateSubmitBtn()" maxlength="60" />
-      </div>
-      <div class="field">
-        <label>Event code</label>
-        <input type="text" id="event-code" placeholder="Ask the stand team..." oninput="updateSubmitBtn()" maxlength="10" autocomplete="off" style="text-transform:uppercase; letter-spacing:0.1em; font-family:'Nunito',sans-serif; font-weight:800;" />
       </div>
     </div>
 
@@ -800,7 +792,7 @@
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, increment, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCbasRg_wZg-0Y2j-77wjAxAHNiMWfHg3Q",
@@ -815,7 +807,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ---- CONFIG ----
-const EVENT_CODE = "JELLY26"; // Change this to your actual event code
 const ADMIN_PIN = "1234";     // Change this before going live!
 const MAX_FLAVOURS = 5;
 const BEANS = [
@@ -906,8 +897,7 @@ function updateSelectedDisplay() {
 window.updateSubmitBtn = function() {
   const ok = document.getElementById('gdpr-check').checked
     && uniqueBeans() >= 2
-    && document.getElementById('recipe-name').value.trim()
-    && document.getElementById('event-code').value.trim().toUpperCase() === EVENT_CODE;
+    && document.getElementById('recipe-name').value.trim();
   document.getElementById('submit-btn').disabled = !ok;
 };
 
@@ -1047,16 +1037,17 @@ async function loadAdmin() {
     const rows = snap.docs.map(d => ({id: d.id, ...d.data()}));
     if (!rows.length) { el.innerHTML = '<div class="state-msg">No submissions yet.</div>'; return; }
     el.innerHTML = `<div class="admin-table-wrap"><table>
-      <thead><tr><th>#</th><th>Recipe</th><th>Name</th><th>Email</th><th>Beans</th><th>Votes</th></tr></thead>
+      <thead><tr><th>#</th><th>Recipe</th><th>Name</th><th>Email</th><th>Beans</th><th>Votes</th><th></th></tr></thead>
       <tbody>${rows.map((r,i) => {
         const beans = Object.entries(r.beans).map(([b,q]) => (q>1?q+'×':'')+b).join(', ');
-        return `<tr>
+        return `<tr id="admin-row-${r.id}">
           <td>${i+1}</td>
           <td><strong>${escHtml(r.name)}</strong></td>
           <td>${escHtml(r.authorName)}</td>
           <td>${escHtml(r.email||'—')}</td>
           <td style="font-size:11px;">${escHtml(beans)}</td>
           <td><strong style="color:var(--red);">${r.votes}</strong></td>
+          <td><button class="delete-btn" onclick="deleteRecipe('${r.id}')">Remove</button></td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>
@@ -1066,6 +1057,18 @@ async function loadAdmin() {
     console.error(err);
   }
 }
+
+window.deleteRecipe = async function(id) {
+  if (!confirm('Remove this recipe? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'recipes', id));
+    const row = document.getElementById('admin-row-' + id);
+    if (row) row.remove();
+  } catch(err) {
+    alert('Could not remove recipe. Please try again.');
+    console.error(err);
+  }
+};
 
 // ---- SCREEN ROUTING ----
 window.showScreen = function(name) {
