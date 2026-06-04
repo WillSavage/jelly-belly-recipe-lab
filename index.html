@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jelly Belly Recipe Lab</title>
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
+<link rel="stylesheet" href="https://use.typekit.net/bmi0mjf.css">
+<style>
+  :root {
+    --red: #E8001D;
+    --red-dark: #b8001a;
+    --red-light: #fff0f1;
+    --red-mid: #ffd6da;
+    --yellow: #FFD400;
+    --yellow-dark: #c4a200;
+    --bg: #fff9f9;
+    --surface: #ffffff;
+    --border: rgba(232,0,29,0.15);
+    --border-mid: rgba(232,0,29,0.25);
+    --text: #1a0a0b;
+    --text-mid: #6b3038;
+    --text-soft: #a0555c;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 999px;
+    --shadow: 0 2px 12px rgba(232,0,29,0.08);
+    --shadow-md: 0 4px 24px rgba(232,0,29,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'merel', sans-serif; font-weight: 400;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--red);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(232,0,29,0.3);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-dot-row {
+    display: flex;
+    gap: 4px;
+  }
+  .hdot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--yellow);
+    opacity: 0.9;
+  }
+  .hdot:nth-child(2) { background: #fff; opacity: 0.7; }
+  .hdot:nth-child(3) { background: var(--yellow); opacity: 0.6; }
+  .header h1 {
+    font-family: 'merel', sans-serif;
+    font-size: 19px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.2px;
+  }
+  .header h1 span { color: var(--yellow); }
+
+  /* NAV TABS */
+  .nav-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 52px;
+    z-index: 90;
+  }
+  .nav {
+    display: flex;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 13px 6px 11px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'merel', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    letter-spacing: 0.01em;
+  }
+  .nav-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-btn.active {
+    color: var(--red);
+    border-bottom-color: var(--red);
+  }
+  .nav-btn:hover:not(.active) { color: var(--text-mid); background: var(--red-light); }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-head { margin-bottom: 20px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--red-light);
+    color: var(--red);
+    font-family: 'merel', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--red-mid);
+  }
+  .section-head h2 {
+    font-family: 'merel', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 5px;
+    line-height: 1.2;
+  }
+  .section-head p {
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  /* FORM FIELDS */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-family: 'merel', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: 'merel', sans-serif; font-weight: 400;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(232,0,29,0.1);
+  }
+  .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .field input::placeholder, .field textarea::placeholder { color: #cba0a5; }
+
+  /* DELETE BTN */
+  .delete-btn {
+    padding: 4px 10px;
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-pill);
+    background: #fff5f5;
+    color: #b91c1c;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'merel', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .delete-btn:hover { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+
+  /* BEAN PICKER */
+  .beans-label {
+    font-family: 'merel', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .beans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  .bean-chip {
+    padding: 6px 4px 6px;
+    border: 1.5px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    font-family: 'merel', sans-serif; font-weight: 400;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-mid);
+    transition: all 0.15s;
+    line-height: 1.3;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bean-chip.selected {
+    border-color: var(--red);
+    background: #ffffff;
+    color: var(--red-dark);
+    font-weight: 700;
+  }
+  .bean-chip:hover:not(.selected) { background: var(--red-light); border-color: var(--red-mid); }
+  .bean-chip img { mix-blend-mode: multiply; background: transparent; display: block; margin: 0 auto 3px; width: 52px; height: 40px; object-fit: contain; }
+  .bean-qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 5px;
+  }
+  .bean-qty-btn {
+    width: 22px; height: 22px;
+    border: 1.5px solid var(--red);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--red);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'merel', sans-serif;
+    font-weight: 800;
+    padding: 0;
+    transition: all 0.12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bean-qty-btn:hover { background: var(--red); color: #fff; }
+  .bean-qty-num {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--red-dark);
+    min-width: 22px;
+    text-align: center;
+    font-family: 'merel', sans-serif;
+  }
+  .selected-beans {
+    min-height: 40px;
+    border: 1.5px dashed var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+  .selected-tag {
+    background: var(--red-light);
+    color: var(--red-dark);
+    border: 1px solid var(--red-mid);
+    border-radius: var(--radius-pill);
+    padding: 3px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'merel', sans-serif;
+  }
+  .bean-hint {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 14px;
+  }
+
+  /* GDPR */
+  .gdpr-box {
+    background: #fffbea;
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .gdpr-box label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 13px;
+    color: #5a4400;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .gdpr-box input[type=checkbox] {
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--red);
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+  }
+  .gdpr-link { color: var(--red); text-decoration: underline; cursor: pointer; font-weight: 700; }
+  .privacy-box {
+    background: var(--surface);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-mid);
+    display: none;
+  }
+  .privacy-box.open { display: block; }
+  .privacy-box h3 {
+    font-family: 'merel', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .privacy-box p { margin-bottom: 7px; }
+  .privacy-close { color: var(--red); cursor: pointer; text-decoration: underline; font-size: 13px; font-weight: 700; }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'merel', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:hover { background: var(--red-dark); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-outline {
+    background: transparent;
+    color: var(--red);
+    border: 1.5px solid var(--red);
+  }
+  .btn-outline:hover { background: var(--red-light); }
+
+  /* SUCCESS */
+  .success-wrap {
+    text-align: center;
+    padding: 20px 10px;
+  }
+  .success-icon-wrap {
+    width: 64px; height: 64px;
+    background: var(--red-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border: 2px solid var(--red-mid);
+  }
+  .success-icon-wrap svg { width: 32px; height: 32px; color: var(--red); }
+  .success-wrap h2 {
+    font-family: 'merel', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .success-wrap p { font-size: 14px; color: var(--text-soft); margin-bottom: 20px; line-height: 1.5; }
+
+  /* RECIPE CARDS (vote) */
+  .recipe-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .recipe-card-name {
+    font-family: 'merel', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .recipe-card-author {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .bean-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .bean-tag {
+    background: var(--bg);
+    color: var(--text-mid);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-pill);
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'merel', sans-serif;
+  }
+  .recipe-desc {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 12px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .vote-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .vote-count {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .vote-count svg { width: 15px; height: 15px; color: var(--red); }
+  .vote-btn {
+    padding: 7px 18px;
+    border: 1.5px solid var(--red);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'merel', sans-serif;
+    color: var(--red);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .vote-btn:hover, .vote-btn.voted { background: var(--red); color: #fff; }
+  .vote-btn.voted { cursor: default; }
+
+  /* LEADERBOARD */
+  .lb-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row.top { background: #fffbf0; }
+  .lb-rank {
+    font-family: 'merel', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    min-width: 32px;
+    text-align: center;
+  }
+  .lb-rank.num { font-size: 15px; color: var(--text-soft); }
+  .lb-info { flex: 1; min-width: 0; }
+  .lb-name {
+    font-family: 'merel', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-beans {
+    font-size: 11px;
+    color: var(--text-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+    font-weight: 600;
+  }
+  .lb-right { display: flex; align-items: center; gap: 8px; }
+  .lb-bar-wrap {
+    width: 60px;
+    background: var(--red-light);
+    border-radius: var(--radius-pill);
+    height: 6px;
+    overflow: hidden;
+  }
+  .lb-bar {
+    height: 6px;
+    background: var(--red);
+    border-radius: var(--radius-pill);
+    transition: width 0.6s ease;
+  }
+  .lb-votes {
+    font-family: 'merel', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--red);
+    min-width: 28px;
+    text-align: right;
+  }
+  .lb-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+
+  /* LOADING / ERROR STATES */
+  .state-msg {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--red-mid);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ERROR BANNER */
+  .error-banner {
+    background: #fff0f1;
+    border: 1px solid var(--red-mid);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red-dark);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .error-banner.show { display: block; }
+
+  /* ADMIN FLOATING LINK */
+  .admin-hint {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+  .admin-hint a { color: var(--red); text-decoration: underline; cursor: pointer; }
+
+  /* ADMIN SCREEN */
+  .admin-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--red-light);
+    color: var(--red-dark);
+    font-family: 'merel', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-mid);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--red-light); }
+
+  /* DOTS DECORATION */
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <img id="jb-logo" src="" alt="Jelly Belly" style="height:54px;width:auto;margin-right:10px;" />
+    <div style="background:rgba(0,0,0,0.2);color:#fff;padding:5px 14px;border-radius:10px;">
+      <span style="font-family:'merel',sans-serif;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#fff;">Recipe Lab</span>
+    </div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showScreen('submit')" id="nav-submit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      Submit
+    </button>
+    <button class="nav-btn" onclick="showScreen('vote')" id="nav-vote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Vote
+    </button>
+    <button class="nav-btn" onclick="showScreen('leaderboard')" id="nav-leaderboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2M18 5h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2M14 2H10a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+      Leaderboard
+    </button>
+    <button class="nav-btn" onclick="showScreen('admin')" id="nav-admin">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Admin
+    </button>
+  </nav>
+</div>
+
+<main class="main">
+
+  <!-- SUBMIT SCREEN -->
+  <div id="screen-submit" class="screen active">
+
+    <div class="section-head">
+      <div class="badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Create your recipe
+      </div>
+      <h2>Build your flavour combo</h2>
+      <p>Pick up to 5 flavours, name your creation, and submit it to the crowd.</p>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Recipe name</label>
+        <input type="text" id="recipe-name" placeholder="e.g. Tropical Sunrise..." oninput="updateSubmitBtn()" maxlength="60" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="beans-label">Pick your beans<br>+/− for quantity (5 beans total)</div>
+      <div class="beans-grid" id="beans-grid"></div>
+      <div class="selected-beans" id="selected-display">
+        <span style="font-size:12px; color:var(--text-soft);">No beans selected yet</span>
+      </div>
+      <div class="bean-hint" id="bean-hint"></div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Why does this combo work? <span style="text-transform:none; font-weight:400; letter-spacing:0;">(optional)</span></label>
+        <textarea id="recipe-desc" placeholder="Tell us what flavour it creates..."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="field"><label>First name</label><input type="text" id="fname" placeholder="Sarah" /></div>
+      <div class="field"><label>Email address</label><input type="email" id="email" placeholder="sarah@example.com" /></div>
+    </div>
+
+    <div class="gdpr-box">
+      <label>
+        <input type="checkbox" id="gdpr-check" onchange="updateSubmitBtn()" />
+        <span>I agree to Jelly Belly storing my name and email to administer this competition. My data will be deleted within 30 days. <span class="gdpr-link" onclick="togglePrivacy()">Read our privacy notice →</span></span>
+      </label>
+    </div>
+
+    <div class="privacy-box" id="privacy-box">
+      <h3>Privacy notice</h3>
+      <p><strong>Who collects your data:</strong> Jelly Belly Candy Company (or their appointed event partner).</p>
+      <p><strong>What we collect:</strong> First name and email address only.</p>
+      <p><strong>Why:</strong> To administer the Recipe Lab competition and contact winners.</p>
+      <p><strong>How long we keep it:</strong> All data is permanently deleted within 30 days of the event.</p>
+      <p><strong>Who sees it:</strong> Event staff only. We will never share or sell your data.</p>
+      <p><strong>Your rights:</strong> You can request deletion at any time by emailing the stand team.</p>
+      <span class="privacy-close" onclick="togglePrivacy()">Close ↑</span>
+    </div>
+
+    <div class="error-banner" id="submit-error"></div>
+    <button class="btn" id="submit-btn" disabled onclick="submitRecipe()">Submit my recipe</button>
+  </div>
+
+  <!-- VOTE SCREEN -->
+  <div id="screen-vote" class="screen">
+    <div class="section-head">
+      <div class="badge">Community vote</div>
+      <h2>Vote for your favourite</h2>
+      <p>Browse submitted recipes and cast your vote. One vote per person.</p>
+    </div>
+    <div id="vote-list"><div class="state-msg"><div class="spinner"></div>Loading recipes...</div></div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="section-head">
+      <div class="badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Live rankings
+      </div>
+      <h2>Top recipes</h2>
+      <p>Updated in real time as votes come in.</p>
+    </div>
+    <div id="lb-list"><div class="state-msg"><div class="spinner"></div>Loading leaderboard...</div></div>
+  </div>
+
+  <!-- ADMIN SCREEN -->
+  <div id="screen-admin" class="screen">
+    <div class="section-head">
+      <div class="badge">Staff only</div>
+      <h2>Admin view</h2>
+      <p>All submissions with contact details. For staff use only.</p>
+    </div>
+    <div id="admin-pin-wrap">
+      <div class="card">
+        <div class="field">
+          <label>Admin PIN</label>
+          <input type="password" id="admin-pin" placeholder="Enter PIN..." maxlength="6" oninput="checkPin()" />
+        </div>
+        <p style="font-size:13px; color:var(--text-soft);">Contact the event team for the admin PIN.</p>
+      </div>
+    </div>
+    <div id="admin-content" style="display:none;">
+      <div id="admin-list"><div class="state-msg"><div class="spinner"></div>Loading...</div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, increment, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCbasRg_wZg-0Y2j-77wjAxAHNiMWfHg3Q",
+  authDomain: "jelly-belly-recipe-lab.firebaseapp.com",
+  projectId: "jelly-belly-recipe-lab",
+  storageBucket: "jelly-belly-recipe-lab.firebasestorage.app",
+  messagingSenderId: "144341576032",
+  appId: "1:144341576032:web:1f4a9330716bf8a931d605"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const BEAN_IMAGES = {
+  "Very Cherry": "beans/Very-Cherry.png",
+  "Green Apple": "beans/Green-Apple.png",
+  "Coconut": "beans/Coconut.png",
+  "Blueberry": "beans/Blueberry.png",
+  "Buttered Popcorn": "beans/Buttered-Popcorn.png",
+  "Lemon Lime": "beans/Lemon-Lime.png",
+  "Cotton Candy": "beans/Cotton-Candy.png",
+  "Peach": "beans/Peach.png",
+  "Red Apple": "beans/Red-Apple.png",
+  "Hot Cinnamon": "beans/Hot-Cinnamon.png",
+  "Top Banana": "beans/Top-Banana.png",
+  "Tutti-Frutti": "beans/Tutti-Fruitti.png",
+  "Watermelon": "beans/Watermelon.png",
+  "Bubble Gum": "beans/Bubble-Gum.png",
+  "Toasted Marshmallow": "beans/Toasted-Marshmallow.png",
+  "Vanilla": "beans/Vanilla.png",
+  "Crushed Pineapple": "beans/Crushed-Pineapple.png",
+  "Raspberry": "beans/Raspberry.png",
+  "Juicy Pear": "beans/Juicy-Pear.png",
+  "Berry Blue": "beans/Berry-Blue.png",
+  "Caramel Popcorn": "beans/Caramel-Corn.png",
+  "Cherry Cola": "beans/Cherry-Cola.png",
+  "Orange": "beans/Orange.png",
+  "Strawberry Cheesecake": "beans/Strawberry-Cheesecake.png"
+};
+const LOGO_SRC = "images/Jelly Belly Logo big.png";
+
+
+
+
+// ---- CONFIG ----
+const ADMIN_PIN = "1234";     // Change this before going live!
+const MAX_FLAVOURS = 5;
+const BEANS = [
+  "Very Cherry","Green Apple","Coconut","Blueberry","Buttered Popcorn",
+  "Lemon Lime","Cotton Candy","Peach","Red Apple","Hot Cinnamon",
+  "Top Banana","Tutti-Frutti","Watermelon","Bubble Gum","Toasted Marshmallow",
+  "Vanilla","Crushed Pineapple","Raspberry","Juicy Pear","Berry Blue",
+  "Caramel Popcorn","Cherry Cola","Orange","Strawberry Cheesecake"
+];
+
+// ---- STATE ----
+let beanQtys = {};
+let chipEls = {};
+const IS_ADMIN = new URLSearchParams(window.location.search).get('admin') === 'true';
+let hasSubmitted = false;
+let hasVoted = false;
+let votedId = null;
+let adminUnlocked = false;
+let unsubVote = null;
+let unsubLb = null;
+
+// ---- BEAN PICKER ----
+function buildBeansGrid() {
+  const grid = document.getElementById('beans-grid');
+  BEANS.forEach(b => {
+    const chip = document.createElement('div');
+    chip.className = 'bean-chip';
+    chip.id = 'chip-' + b.replace(/\s+/g,'_');
+    chip.innerHTML = '<div style="font-size:11px;">' + b + '</div>';
+    if (BEAN_IMAGES[b]) {
+      const imgEl = document.createElement('img');
+      imgEl.src = BEAN_IMAGES[b];
+      imgEl.style.cssText = 'width:64px;height:50px;object-fit:contain;display:block;margin:0 auto 3px;';
+      imgEl.alt = b;
+      chip.insertBefore(imgEl, chip.firstChild);
+    }
+    chip.onclick = (e) => {
+      if (e.target.classList.contains('bean-qty-btn')) return;
+      if (e.target.tagName === 'IMG') { if (!beanQtys[b]) addBean(b); return; }
+      if (!beanQtys[b]) addBean(b);
+    };
+    chipEls[b] = chip;
+    grid.appendChild(chip);
+  });
+}
+
+function uniqueBeans() { return Object.keys(beanQtys).filter(k => beanQtys[k] > 0).length; }
+function totalBeans() { return Object.values(beanQtys).reduce((a,b) => a+b, 0); }
+
+function addBean(b) {
+  if (totalBeans() >= MAX_FLAVOURS) return;
+  beanQtys[b] = 1;
+  renderChip(b); updateSelectedDisplay(); updateSubmitBtn();
+}
+
+window.changeQty = function(b, delta, e) {
+  if (e) e.stopPropagation();
+  const nv = (beanQtys[b] || 0) + delta;
+  if (nv <= 0) { delete beanQtys[b]; }
+  else if (delta > 0 && totalBeans() >= MAX_FLAVOURS) { return; }
+  else { beanQtys[b] = nv; }
+  renderChip(b); updateSelectedDisplay(); updateSubmitBtn();
+};
+
+function renderChip(b) {
+  const chip = chipEls[b];
+  const qty = beanQtys[b] || 0;
+  const safe = b.replace(/'/g,"\\'");
+  if (qty > 0) {
+    chip.className = 'bean-chip selected';
+    chip.innerHTML = '';
+    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; i.style.cssText='width:64px;height:50px;object-fit:contain;display:block;margin:0 auto 3px;'; chip.appendChild(i); }
+    const d1=document.createElement('div'); d1.style.cssText='margin-bottom:4px;font-size:11px;'; d1.textContent=b; chip.appendChild(d1);
+    const qrow=document.createElement('div'); qrow.className='bean-qty-row';
+    qrow.innerHTML='<button class="bean-qty-btn" onclick="changeQty(\'' + safe + '\',-1,event)">−</button><span class="bean-qty-num">'+qty+'</span><button class="bean-qty-btn" onclick="changeQty(\'' + safe + '\',1,event)">+</button>';
+    chip.appendChild(qrow);
+  } else {
+    chip.className = 'bean-chip';
+    chip.innerHTML = '';
+    if (BEAN_IMAGES[b]) { const i=document.createElement('img'); i.src=BEAN_IMAGES[b]; i.style.cssText='width:64px;height:50px;object-fit:contain;display:block;margin:0 auto 3px;'; chip.appendChild(i); }
+    const d2=document.createElement('div'); d2.style.cssText='font-size:10px;'; d2.textContent=b; chip.appendChild(d2);
+  }
+}
+
+function updateSelectedDisplay() {
+  const el = document.getElementById('selected-display');
+  const hint = document.getElementById('bean-hint');
+  const active = Object.entries(beanQtys).filter(([,v]) => v > 0);
+  const total = totalBeans();
+  if (active.length === 0) {
+    el.innerHTML = '<span style="font-size:12px; color:var(--text-soft);">No beans selected yet</span>';
+    hint.textContent = '';
+  } else {
+    el.innerHTML = active.map(([b,q]) => `<span class="selected-tag">${q > 1 ? q+'× ' : ''}${b}</span>`).join('');
+    hint.textContent = total >= MAX_FLAVOURS ? `Maximum ${MAX_FLAVOURS} beans reached` : `${total} of ${MAX_FLAVOURS} beans used`;
+  }
+}
+
+
+window.updateSubmitBtn = function() {
+  const ok = document.getElementById('gdpr-check').checked
+    && uniqueBeans() >= 2
+    && document.getElementById('recipe-name').value.trim();
+  document.getElementById('submit-btn').disabled = !ok;
+};
+
+window.togglePrivacy = function() {
+  document.getElementById('privacy-box').classList.toggle('open');
+};
+
+// ---- SUBMIT ----
+window.submitRecipe = async function() {
+  if (hasSubmitted) { showError('submit-error', 'You have already submitted a recipe from this device.'); return; }
+  const name = document.getElementById('recipe-name').value.trim();
+  const fname = document.getElementById('fname').value.trim() || 'Anonymous';
+  const email = document.getElementById('email').value.trim();
+  const desc = document.getElementById('recipe-desc').value.trim();
+  const beansSnap = {...beanQtys};
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  // Moderate name and description
+  btn.textContent = 'Checking content...';
+  try {
+    const modRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 50,
+        messages: [{ role: 'user', content: 'You are a content moderator for a family-friendly festival activation. Check if the following recipe name and description contain any offensive, inappropriate, or harmful content. Reply only with valid JSON: {"pass": true} or {"pass": false, "reason": "brief reason"}\n\nName: ' + name + '\nDescription: ' + desc }]
+      })
+    });
+    const modData = await modRes.json();
+    const modText = modData?.content?.[0]?.text?.trim();
+    const modResult = JSON.parse(modText);
+    if (!modResult.pass) {
+      btn.disabled = false;
+      btn.textContent = 'Submit my recipe';
+      showError('submit-error', 'Your recipe couldn\'t be submitted: ' + (modResult.reason || 'inappropriate content detected.'));
+      return;
+    }
+  } catch(e) { /* if moderation fails, allow through */ }
+
+  try {
+    await addDoc(collection(db, 'recipes'), {
+      name, authorName: fname, email, desc,
+      beans: beansSnap, votes: 0,
+      createdAt: serverTimestamp()
+    });
+    hasSubmitted = false;
+    document.getElementById('screen-submit').innerHTML = `
+      <div class="success-wrap" style="position:relative;">
+        <canvas id="confetti-canvas" style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:100%;height:400px;pointer-events:none;"></canvas>
+        <div style="position:relative;z-index:2;">
+          <div class="success-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h2>Recipe submitted! 🎉</h2>
+          <p>Your combo "<strong>${name}</strong>" is live. Get people to vote for it!</p>
+          <button class="btn" onclick="showScreen('leaderboard')" style="margin-bottom:10px;">See the leaderboard</button>
+          <button class="btn btn-outline" onclick="location.reload()">Create another recipe</button>
+        </div>
+      </div>`;
+    // Set up confetti canvas and burst
+    setTimeout(() => {
+      const cc = document.getElementById('confetti-canvas');
+      if (cc) {
+        cc.width = cc.offsetWidth;
+        cc.height = cc.offsetHeight;
+        burstConfetti(cc);
+      }
+    }, 100);
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Submit my recipe';
+    showError('submit-error', 'Something went wrong. Please try again.');
+    console.error(err);
+  }
+};
+
+// ---- VOTE ----
+function renderVoteList(recipes) {
+  const el = document.getElementById('vote-list');
+  if (!recipes.length) { el.innerHTML = '<div class="lb-empty">No recipes yet — be the first to submit!</div>'; return; }
+  const sorted = [...recipes].sort((a,b) => b.votes - a.votes);
+  el.innerHTML = sorted.map(r => {
+    const beans = Object.entries(r.beans).map(([b,q]) => `<span class="bean-tag">${q>1?q+'× ':''}${b}</span>`).join('');
+    const voted = votedId === r.id;
+    return `<div class="recipe-card">
+      <div class="recipe-card-name">${escHtml(r.name)}</div>
+      <div class="recipe-card-author">by ${escHtml(r.authorName)}</div>
+      <div class="bean-tags">${beans}</div>
+      ${r.desc ? `<div class="recipe-desc">"${escHtml(r.desc)}"</div>` : ''}
+      <div class="vote-row">
+        <span class="vote-count">
+          <svg viewBox="0 0 24 24" fill="${voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          ${r.votes} vote${r.votes !== 1 ? 's' : ''}
+        </span>
+        <button class="vote-btn${voted ? ' voted' : ''}" onclick="castVote('${r.id}')">${voted ? '✓ Voted' : 'Vote for this'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.castVote = async function(id) {
+  if (hasVoted) return;
+  try {
+    await updateDoc(doc(db, 'recipes', id), { votes: increment(1) });
+    hasVoted = false; votedId = null;
+  } catch(err) { console.error(err); }
+};
+
+function subscribeVote() {
+  if (unsubVote) return;
+  const q = query(collection(db, 'recipes'), orderBy('votes', 'desc'));
+  unsubVote = onSnapshot(q, snap => {
+    const recipes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    renderVoteList(recipes);
+  });
+}
+
+// ---- LEADERBOARD ----
+function renderLeaderboard(recipes) {
+  const el = document.getElementById('lb-list');
+  if (!recipes.length) { el.innerHTML = '<div class="lb-empty">No recipes yet — be the first!</div>'; return; }
+  const sorted = [...recipes].sort((a,b) => b.votes - a.votes);
+  const max = sorted[0].votes || 1;
+  const medals = ['🥇','🥈','🥉'];
+  el.innerHTML = `<div class="lb-card">${sorted.map((r,i) => {
+    const beans = Object.entries(r.beans).map(([b,q]) => (q>1?q+'× ':'')+b).join(' · ');
+    const pct = Math.round(r.votes / max * 100);
+    const rankEl = i < 3 ? `<div class="lb-rank">${medals[i]}</div>` : `<div class="lb-rank num">${i+1}</div>`;
+    return `<div class="lb-row${i===0?' top':''}">
+      ${rankEl}
+      <div class="lb-info">
+        <div class="lb-name">${escHtml(r.name)}</div>
+        <div class="lb-beans">${escHtml(beans)}</div>
+      </div>
+      <div class="lb-right">
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%"></div></div>
+        <div class="lb-votes">${r.votes}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function subscribeLb() {
+  if (unsubLb) return;
+  const q = query(collection(db, 'recipes'), orderBy('votes', 'desc'));
+  unsubLb = onSnapshot(q, snap => {
+    const recipes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    renderLeaderboard(recipes);
+  });
+}
+
+// ---- ADMIN ----
+window.checkPin = function() {
+  const pin = document.getElementById('admin-pin').value;
+  if (pin === ADMIN_PIN) {
+    adminUnlocked = true;
+    document.getElementById('admin-pin-wrap').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadAdmin();
+  }
+};
+
+async function loadAdmin() {
+  const el = document.getElementById('admin-list');
+  try {
+    const q = query(collection(db, 'recipes'), orderBy('votes', 'desc'));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    if (!rows.length) { el.innerHTML = '<div class="state-msg">No submissions yet.</div>'; return; }
+    el.innerHTML = `<div class="admin-table-wrap"><table>
+      <thead><tr><th>#</th><th>Recipe</th><th>Name</th><th>Email</th><th>Beans</th><th>Votes</th><th></th></tr></thead>
+      <tbody>${rows.map((r,i) => {
+        const beans = Object.entries(r.beans).map(([b,q]) => (q>1?q+'×':'')+b).join(', ');
+        return `<tr id="admin-row-${r.id}">
+          <td>${i+1}</td>
+          <td><strong>${escHtml(r.name)}</strong></td>
+          <td>${escHtml(r.authorName)}</td>
+          <td>${escHtml(r.email||'—')}</td>
+          <td style="font-size:11px;">${escHtml(beans)}</td>
+          <td><strong style="color:var(--red);">${r.votes}</strong></td>
+          <td><button class="delete-btn" onclick="deleteRecipe('${r.id}')">Remove</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>
+    <p style="font-size:12px; color:var(--text-soft); margin-top:12px; text-align:center;">Showing ${rows.length} submission${rows.length!==1?'s':''}. Refresh to update.</p>`;
+  } catch(err) {
+    el.innerHTML = '<div class="state-msg">Error loading data.</div>';
+    console.error(err);
+  }
+}
+
+window.deleteRecipe = async function(id) {
+  if (!confirm('Remove this recipe? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'recipes', id));
+    const row = document.getElementById('admin-row-' + id);
+    if (row) row.remove();
+  } catch(err) {
+    alert('Could not remove recipe. Please try again.');
+    console.error(err);
+  }
+};
+
+// ---- SCREEN ROUTING ----
+window.showScreen = function(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if (name === 'vote') subscribeVote();
+  if (name === 'leaderboard') subscribeLb();
+  if (name === 'admin' && adminUnlocked) loadAdmin();
+};
+
+// ---- HELPERS ----
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// SVG viewBox is 0 0 1260.42 761.22
+// We'll draw at a small scale and centre on 0,0
+const VBOX_W = 1260.42;
+const VBOX_H = 761.22;
+const BEAN_PATH = new Path2D("M1245.75,343.87c.17-1.94.32-3.88.45-5.83.12-1.95.24-3.9.33-5.86.19-4.21.32-8.43.33-12.66,0-.19.01-.38.01-.57,0-.24-.02-.47-.02-.71-.01-3.98-.12-7.82-.3-11.57-6.55-162.3-142.04-291.91-308.35-291.91-41.26,0-80.62,7.98-116.6,22.46-.16.06-.32.14-.49.21-58.91,24.46-123.64,37.98-191.58,37.98s-131.64-13.31-190.19-37.41c-.2-.08-.4-.18-.6-.26-36.32-14.8-76.12-22.97-117.87-22.97C154.76,14.76,19.33,144.13,12.55,306.22c-.2,4.1-.33,8.3-.33,12.7v.02h0v.02c0,4.48.14,8.93.34,13.37.08,1.84.19,3.68.31,5.52.14,2.1.31,4.2.49,6.3,4.5,54.03,23.26,104.05,52.66,146.38,96.48,146.24,312.5,248.11,563.52,248.11s466.9-101.79,563.43-247.96c29.5-42.44,48.31-92.62,52.78-146.81Z");
+
+const COLORS = [
+  { body: '#E8001D', shine: '#ff8899' },
+  { body: '#FFD400', shine: '#ffe97a' },
+  { body: '#3cb54a', shine: '#78d486' },
+  { body: '#4a90d9', shine: '#89bfee' },
+  { body: '#f47920', shine: '#f9aa68' },
+  { body: '#f48fb1', shine: '#fac0d0' },
+  { body: '#9c4dcc', shine: '#c688e8' },
+  { body: '#ffffff', shine: '#dddddd' },
+  { body: '#a8d5a2', shine: '#cce8c8' },
+  { body: '#c0392b', shine: '#e07060' },
+  { body: '#1a1a2e', shine: '#4a4a6e' },
+  { body: '#f9e04b', shine: '#fdf0a0' },
+];
+
+function drawBean(ctx, x, y, scale, rotation, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  // Centre the bean on 0,0 and scale down
+  ctx.translate(-VBOX_W * scale / 2, -VBOX_H * scale / 2);
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = color.body;
+  ctx.fill(BEAN_PATH);
+
+  // Shine — top left area of bean
+  ctx.beginPath();
+  ctx.ellipse(180, 180, 90, 60, -0.4, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fill();
+
+  ctx.restore();
+}
+
+let confettiBeans = [];
+let confettiRaf = null;
+
+function createBean(cc) {
+  const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  const angle = Math.random() * Math.PI * 2;
+  const speed = Math.random() * 6 + 4;
+  return {
+    x: cc.width / 2 + (Math.random() - 0.5) * 30,
+    y: cc.height * 0.52,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed - 2,
+    rotation: Math.random() * Math.PI * 2,
+    vr: (Math.random() - 0.5) * 0.14,
+    scale: Math.random() * 0.018 + 0.016,
+    color,
+    alpha: 1,
+    gravity: 0.18,
+  };
+}
+
+function burstConfetti(cc) {
+  const ctx = cc.getContext('2d');
+  if (confettiRaf) cancelAnimationFrame(confettiRaf);
+  confettiBeans = [];
+  ctx.clearRect(0, 0, cc.width, cc.height);
+  for (let i = 0; i < 60; i++) confettiBeans.push(createBean(cc));
+
+  function animate() {
+    ctx.clearRect(0, 0, cc.width, cc.height);
+    let alive = false;
+
+    confettiBeans.forEach(b => {
+      b.x += b.vx;
+      b.y += b.vy;
+      b.vy += b.gravity;
+      b.vx *= 0.995;
+      b.rotation += b.vr;
+
+      if (b.y > cc.height * 0.78) b.alpha = Math.max(0, b.alpha - 0.035);
+      if (b.alpha <= 0 || b.y > cc.height + 20) return;
+
+      alive = true;
+      ctx.globalAlpha = b.alpha;
+      drawBean(ctx, b.x, b.y, b.scale, b.rotation, b.color);
+      ctx.globalAlpha = 1;
+    });
+
+    if (alive) confettiRaf = requestAnimationFrame(animate);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  animate();
+}
+
+
+// ---- INIT ----
+document.getElementById('jb-logo').src = LOGO_SRC;
+buildBeansGrid();
+</script>
+
+</body>
+</html>
